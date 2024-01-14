@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 #include "./include/utils.hpp"
 #include "./include/tf-idf.hpp"
@@ -17,7 +18,7 @@ std::vector<std::string> produce_tokens(std::string &text)
       if (buf.length() != 0) {
         tokens.push_back(buf);
       }
-      if (*it != ' ') {
+      if (*it != ' ' && *it != '\n' && *it != '\t') {
         tokens.push_back(std::string(1, *it));
       }
       buf.clear();
@@ -26,7 +27,9 @@ std::vector<std::string> produce_tokens(std::string &text)
     }
     ++it;
   }
-
+  if (buf.length() != 0) {
+    tokens.push_back(buf);
+  }
   return tokens;
 }
 
@@ -63,20 +66,21 @@ Corpus assemble_corpus(std::vector<std::string> &filepaths)
 
 double tf(std::string &term, Document &document)
 {
-  size_t f_td = document.first[term];
-  return static_cast<double>(f_td)/document.second;
+  return static_cast<double>(document.first[term])/static_cast<double>(document.second);
 }
 
 double idf(std::string &term, Corpus &corpus)
 {
-  size_t n = corpus.size();
-  size_t dtd = 0;
-  for (auto &doc : corpus) {
-    if (doc.second.first[term] != 0) {
-      ++dtd;
+  double N = static_cast<double>(corpus.size())+1.0;
+  double n_t = 0.0+1.0;
+
+  for (auto &pair : corpus) {
+    if (pair.second.first[term] > 0) {
+      ++n_t;
     }
   }
-  return std::log(static_cast<double>((n+1)) / (dtd+1));
+
+  return std::log10(N/n_t);
 }
 
 double tfidf(std::string &term, Document &document, Corpus &corpus)
@@ -84,9 +88,18 @@ double tfidf(std::string &term, Document &document, Corpus &corpus)
   return tf(term, document)*idf(term, corpus);
 }
 
-std::vector<std::pair<Document, size_t>> search_query(std::string &query, Corpus &corpus)
+std::vector<std::pair<std::string, double>> produce_ranked_documents(std::string &query, Corpus &corpus)
 {
-  std::vector<std::pair<Document, size_t>> ranked_documents;
+  std::vector<std::pair<std::string, double>> ranked_documents;
   std::vector<std::string> qtokens = produce_tokens(query);
 
+  for (auto &pair : corpus) {
+    double rank = 0;
+    for (std::string &token : qtokens) {
+      rank += tfidf(token, pair.second, corpus);
+    }
+    ranked_documents.push_back(std::make_pair(pair.first, rank));
+  }
+
+  return ranked_documents;
 }

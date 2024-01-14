@@ -26,11 +26,12 @@ std::vector<std::string> walkdir(const std::string& path)
 
   if (std::filesystem::is_directory(path)) {
     for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
-      if (std::filesystem::is_regular_file(entry)) {
+      const auto& filename = entry.path().filename().string();
+      if (std::filesystem::is_regular_file(entry) && filename[0] != '.' && filename.find('/') == std::string::npos) {
         filePaths.push_back(entry.path().string());
       }
     }
-  } else if (std::filesystem::is_regular_file(path)) {
+  } else if (std::filesystem::is_regular_file(path) && path[0] != '.' && path.find('/') == std::string::npos) {
     filePaths.push_back(path);
   } else {
     std::cerr << "Invalid path: " << path << std::endl;
@@ -38,3 +39,4 @@ std::vector<std::string> walkdir(const std::string& path)
 
   return filePaths;
 }
+

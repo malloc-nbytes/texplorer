@@ -12,26 +12,29 @@
 #include "./include/utils.hpp"
 #include "./include/tf-idf.hpp"
 
-std::vector<std::pair<std::string, Document>> corpus_to_sorted_vec(Corpus &corpus)
-{
-  std::vector<std::pair<std::string, Document>> sorted_corpus(corpus.begin(), corpus.end());
-  std::sort(sorted_corpus.begin(), sorted_corpus.end(), [](const auto &lhs, const auto &rhs) {
-    return lhs.second.second > rhs.second.second;
-  });
-  return sorted_corpus;
-}
+// typedef std::unordered_map<std::string, size_t> FreqMap;
+// typedef std::pair<FreqMap, size_t> Document;
+// typedef std::unordered_map<std::string, Document> Corpus;
 
 int main(void)
 {
-  std::string filepath = "/home/zdh/dev/docs.gl/es2";
+  std::string filepath = "/home/zdh/dev/docs.gl/";
+  std::string query = "bind vertex, buffer.";
+
   std::vector<std::string> filepaths = walkdir(filepath);
 
   Corpus corpus = assemble_corpus(filepaths);
+  std::cout << "Files: " << corpus.size() << std::endl;
 
-  // /home/zdh/dev/docs.gl/es2/glActiveTexture.xhtml
-  std::string query = "selects which texture unit subsequent";
+  std::vector<std::pair<std::string, double>> ranked_documents = produce_ranked_documents(query, corpus);
 
-  std::vector<std::pair<Document, size_t>> ranked_documents = search_query(query, corpus);
+  std::sort(ranked_documents.begin(), ranked_documents.end(), [](const auto &lhs, const auto &rhs) {
+    return lhs.second > rhs.second;
+  });
+
+  for (size_t i = 0; (i < 10) & (i < ranked_documents.size()); ++i) {
+    std::cout << 10-i << ": " << ranked_documents[i].first << " ::: " << ranked_documents[i].second << std::endl;
+  }
 
   return 0;
 }
