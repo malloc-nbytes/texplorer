@@ -19,6 +19,7 @@ struct Corpus {
 };
 
 Corpus assemble_corpus(std::vector<std::string> &filepaths);
+void dump_corpus(Corpus &corpus);
 double tf(std::string &term, Document &document);
 double idf(std::string &term, Corpus &corpus);
 double tfidf(std::string &term, Document &document, Corpus &corpus);

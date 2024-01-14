@@ -18,6 +18,7 @@ int main(void)
 
   Corpus corpus = assemble_corpus(filepaths);
 
+  dump_corpus(corpus);
 
   return 0;
 }

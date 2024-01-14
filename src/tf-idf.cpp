@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cmath>
+#include <iostream>
 #include <string>
 #include <vector>
 #include "./include/utils.hpp"
@@ -31,16 +32,18 @@ std::vector<std::string> produce_tokens(std::string &text)
 
 Document produce_document(std::string &filepath)
 {
+  std::cout << "Lexing: " << filepath << std::endl;
   std::string text = file_to_str(filepath);
   std::vector<std::string> tokens = produce_tokens(text);
   FreqMap freqmap;
+  freqmap.total_terms = 0;
 
   for (std::string &token : tokens) {
     ++freqmap.freqs[token];
     ++freqmap.total_terms;
   }
 
-  return (Document) {
+  return Document {
     .freqmap = std::move(freqmap),
   };
 }
@@ -52,6 +55,18 @@ Corpus assemble_corpus(std::vector<std::string> &filepaths)
     corpus.documents[filepath] = produce_document(filepath);
   }
   return corpus;
+}
+
+void dump_corpus(Corpus &corpus)
+{
+  for (auto &doc : corpus.documents) {
+    std::cout << "Document: " << doc.first << std::endl;
+    FreqMap &fm = doc.second.freqmap;
+    std::cout << "Total terms: " << fm.total_terms << std::endl;
+    for (auto &freq : fm.freqs) {
+      std::cout << "  " << freq.first << " " << freq.second << std::endl;
+    }
+  }
 }
 
 size_t docs_term_is_in(std::string &term, Corpus &corpus)
