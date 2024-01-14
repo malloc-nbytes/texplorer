@@ -2,4 +2,7 @@
 
 set -xe
 
-g++ -Wextra -Wall -ggdb --pedantic -o main ./main.cpp ./utils.cpp
+DEPS="./main.cpp ./utils.cpp ./tf-idf.cpp"
+CFLAGS="-Wextra -Wall -ggdb --pedantic"
+
+g++ $CFLAGS -o main $DEPS

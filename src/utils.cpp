@@ -11,7 +11,7 @@ std::string file_to_str(const std::string &filepath)
   std::ifstream file(filepath);
   if (!file.is_open()) {
     std::cerr << "Error opening file: " << filepath << std::endl;
-    std::exit(EXIT_FAILURE);
+    return {};
   }
   std::stringstream buf;
   buf << file.rdbuf();
