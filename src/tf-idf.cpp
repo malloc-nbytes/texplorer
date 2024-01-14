@@ -1,3 +1,5 @@
+#include <cassert>
+#include <cmath>
 #include <string>
 #include <vector>
 #include "./include/tf-idf.hpp"
@@ -26,7 +28,7 @@ std::vector<std::string> tokenize_str(std::string &text)
   return tokens;
 }
 
-FreqMap tf_produce_freqs(std::string &text)
+FreqMap produce_freqs(std::string &text)
 {
   FreqMap freqs;
   std::vector<std::string> tokens = tokenize_str(text);
@@ -38,11 +40,41 @@ FreqMap tf_produce_freqs(std::string &text)
   return freqs;
 }
 
-double tf(std::string &term, std::unordered_map<std::string, size_t> freqs)
-{
+size_t total_terms_in_freqmap(FreqMap &freqmap) {
   size_t s = 0;
-  for (auto &item : freqs) {
-    s += item.second;
+  for (auto &pair : freqmap) {
+    s += pair.second;
   }
-  return static_cast<double>(freqs[term])/s;
+  return s;
+}
+
+size_t docs_term_is_in(std::string &term, Corpus &corpus)
+{
+  size_t d = 0;
+  for (auto &document : corpus.documents) {
+    if (document.second[term]) {
+      ++d;
+    }
+  }
+  return d;
+}
+
+double tf(std::string &term, std::string &document, Corpus &corpus)
+{
+  FreqMap &freqmap = corpus.documents[document];
+  return
+    static_cast<double>(freqmap[term])/total_terms_in_freqmap(freqmap);
+}
+
+double idf(std::string &term, Corpus &corpus)
+{
+  size_t
+    n = corpus.documents.size(),
+    dt = docs_term_is_in(term, corpus);
+  return std::log((1+n)/(1+dt));
+}
+
+double tfidf(std::string &term, std::string &document, Corpus &corpus)
+{
+  return tf(term, document, corpus)*idf(term, corpus);
 }

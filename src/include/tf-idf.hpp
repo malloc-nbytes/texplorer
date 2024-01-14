@@ -7,18 +7,13 @@
 typedef std::unordered_map<std::string, size_t> FreqMap;
 
 struct Corpus {
-  std::unordered_map<std::string, FreqMap> info;
-
-  inline size_t documents() {
-    return this->info.size();
-  }
-
-  inline FreqMap &freqmap(std::string &document_name) {
-    return this->info[document_name];
-  }
+  //                 doc name,   frequencies
+  std::unordered_map<std::string, FreqMap> documents;
 };
 
 FreqMap tf_produce_freqs(std::string &text);
 double tf(std::string &term, std::unordered_map<std::string, size_t> freqs);
+double idf(std::string &term, Corpus &corpus);
+double tfidf(std::string &term, Corpus &corpus);
 
 #endif // TF_IDF_H
