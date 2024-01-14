@@ -32,6 +32,8 @@ std::vector<std::string> produce_tokens(std::string &text)
 
 Document produce_document(std::string &filepath)
 {
+  std::cout << "Indexing: " << filepath << "..." << std::endl;
+
   std::string text = file_to_str(filepath);
   std::vector<std::string> tokens = produce_tokens(text);
   Document document;
@@ -59,12 +61,6 @@ Corpus assemble_corpus(std::vector<std::string> &filepaths)
   return corpus;
 }
 
-void dump_corpus(Corpus &corpus)
-{
-  (void)corpus;
-  assert(false && "unimplemented");
-}
-
 double tf(std::string &term, Document &document)
 {
   size_t f_td = document.first[term];
@@ -86,4 +82,11 @@ double idf(std::string &term, Corpus &corpus)
 double tfidf(std::string &term, Document &document, Corpus &corpus)
 {
   return tf(term, document)*idf(term, corpus);
+}
+
+std::vector<std::pair<Document, size_t>> search_query(std::string &query, Corpus &corpus)
+{
+  std::vector<std::pair<Document, size_t>> ranked_documents;
+  std::vector<std::string> qtokens = produce_tokens(query);
+
 }
