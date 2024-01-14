@@ -12,14 +12,10 @@
 #include "./include/utils.hpp"
 #include "./include/tf-idf.hpp"
 
-// typedef std::unordered_map<std::string, size_t> FreqMap;
-// typedef std::pair<FreqMap, size_t> Document;
-// typedef std::unordered_map<std::string, Document> Corpus;
-
 int main(void)
 {
-  std::string filepath = "/home/zdh/dev/docs.gl/";
-  std::string query = "bind vertex, buffer.";
+  std::string filepath = "/home/zdh/dev/docs.gl/es2/";
+  std::string query = "bind texture, buffer.";
 
   std::vector<std::string> filepaths = walkdir(filepath);
 

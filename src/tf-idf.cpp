@@ -83,21 +83,17 @@ double idf(std::string &term, Corpus &corpus)
   return std::log10(N/n_t);
 }
 
-double tfidf(std::string &term, Document &document, Corpus &corpus)
-{
-  return tf(term, document)*idf(term, corpus);
-}
-
 std::vector<std::pair<std::string, double>> produce_ranked_documents(std::string &query, Corpus &corpus)
 {
   std::vector<std::pair<std::string, double>> ranked_documents;
-  std::vector<std::string> qtokens = produce_tokens(query);
 
   for (auto &pair : corpus) {
-    double rank = 0;
-    for (std::string &token : qtokens) {
-      rank += tfidf(token, pair.second, corpus);
+    double rank = 0.0;
+
+    for (std::string &term : produce_tokens(query)) {
+      rank += tf(term, pair.second)*idf(term, corpus);
     }
+
     ranked_documents.push_back(std::make_pair(pair.first, rank));
   }
 
