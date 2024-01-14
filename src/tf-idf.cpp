@@ -2,9 +2,10 @@
 #include <cmath>
 #include <string>
 #include <vector>
+#include "./include/utils.hpp"
 #include "./include/tf-idf.hpp"
 
-std::vector<std::string> tokenize_str(std::string &text)
+std::vector<std::string> produce_tokens(std::string &text)
 {
   std::vector<std::string> tokens;
   std::string buf = "";
@@ -28,53 +29,55 @@ std::vector<std::string> tokenize_str(std::string &text)
   return tokens;
 }
 
-FreqMap produce_freqs(std::string &text)
+Document produce_document(std::string &filepath)
 {
-  FreqMap freqs;
-  std::vector<std::string> tokens = tokenize_str(text);
+  std::string text = file_to_str(filepath);
+  std::vector<std::string> tokens = produce_tokens(text);
+  FreqMap freqmap;
 
   for (std::string &token : tokens) {
-    freqs[token]++;
+    ++freqmap.freqs[token];
+    ++freqmap.total_terms;
   }
 
-  return freqs;
+  return (Document) {
+    .freqmap = std::move(freqmap),
+  };
 }
 
-size_t total_terms_in_freqmap(FreqMap &freqmap) {
-  size_t s = 0;
-  for (auto &pair : freqmap) {
-    s += pair.second;
+Corpus assemble_corpus(std::vector<std::string> &filepaths)
+{
+  Corpus corpus;
+  for (std::string &filepath : filepaths) {
+    corpus.documents[filepath] = produce_document(filepath);
   }
-  return s;
+  return corpus;
 }
 
 size_t docs_term_is_in(std::string &term, Corpus &corpus)
 {
   size_t d = 0;
-  for (auto &document : corpus.documents) {
-    if (document.second[term]) {
+  for (auto &doc : corpus.documents) {
+    if (doc.second.freqmap.freqs[term]) {
       ++d;
     }
   }
   return d;
 }
 
-double tf(std::string &term, std::string &document, Corpus &corpus)
+double tf(std::string &term, Document &document)
 {
-  FreqMap &freqmap = corpus.documents[document];
-  return
-    static_cast<double>(freqmap[term])/total_terms_in_freqmap(freqmap);
+  size_t F_td = document.freqmap.freqs[term];
+  return static_cast<double>(F_td)/document.freqmap.total_terms;
 }
 
 double idf(std::string &term, Corpus &corpus)
 {
-  size_t
-    n = corpus.documents.size(),
-    dt = docs_term_is_in(term, corpus);
-  return std::log((1+n)/(1+dt));
+  double N = static_cast<double>(corpus.documents.size());
+  return std::log((N+1)/(docs_term_is_in(term, corpus)+1));
 }
 
-double tfidf(std::string &term, std::string &document, Corpus &corpus)
+double tfidf(std::string &term, Document &document, Corpus &corpus)
 {
-  return tf(term, document, corpus)*idf(term, corpus);
+  return tf(term, document)*idf(term, corpus);
 }

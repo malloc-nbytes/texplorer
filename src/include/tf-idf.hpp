@@ -3,17 +3,24 @@
 
 #include <unordered_map>
 #include <string>
+#include <vector>
 
-typedef std::unordered_map<std::string, size_t> FreqMap;
-
-struct Corpus {
-  //                 doc name,   frequencies
-  std::unordered_map<std::string, FreqMap> documents;
+struct FreqMap {
+  std::unordered_map<std::string, size_t> freqs;
+  size_t total_terms;
 };
 
-FreqMap tf_produce_freqs(std::string &text);
-double tf(std::string &term, std::unordered_map<std::string, size_t> freqs);
+struct Document {
+  FreqMap freqmap;
+};
+
+struct Corpus {
+  std::unordered_map<std::string, Document> documents;
+};
+
+Corpus assemble_corpus(std::vector<std::string> &filepaths);
+double tf(std::string &term, Document &document);
 double idf(std::string &term, Corpus &corpus);
-double tfidf(std::string &term, Corpus &corpus);
+double tfidf(std::string &term, Document &document, Corpus &corpus);
 
 #endif // TF_IDF_H

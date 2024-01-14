@@ -16,7 +16,7 @@ int main(void)
   std::string filepath = "/home/zdh/dev/docs.gl";
   std::vector<std::string> filepaths = walkdir(filepath);
 
-
+  Corpus corpus = assemble_corpus(filepaths);
 
 
   return 0;
