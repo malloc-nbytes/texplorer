@@ -14,8 +14,8 @@
 
 int main(void)
 {
-  std::string filepath = "/home/zdh/dev/docs.gl/es2/";
-  std::string query = "bind texture, buffer.";
+  std::string filepath = "/home/zdh/school/";
+  std::string query = "virus";
 
   std::vector<std::string> filepaths = walkdir(filepath);
 

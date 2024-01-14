@@ -30,9 +30,9 @@ std::vector<std::string> walkdir(const std::string& path)
   }
 
   for (const auto &entry : std::filesystem::directory_iterator(path)) {
-    if (std::filesystem::is_regular_file(entry.path())) {
+    if (std::filesystem::is_regular_file(entry.path()) && entry.path().filename().string()[0] != '.') {
       filePaths.push_back(entry.path());
-    } else if (std::filesystem::is_directory(entry.path())) {
+    } else if (std::filesystem::is_directory(entry.path()) && entry.path().filename().string()[0] != '.') {
       std::vector<std::string> subDir = walkdir(entry.path());
       filePaths.insert(filePaths.end(), subDir.begin(), subDir.end());
     }
