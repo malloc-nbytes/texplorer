@@ -32,64 +32,55 @@ std::vector<std::string> produce_tokens(std::string &text)
 
 Document produce_document(std::string &filepath)
 {
-  std::cout << "Lexing: " << filepath << std::endl;
   std::string text = file_to_str(filepath);
   std::vector<std::string> tokens = produce_tokens(text);
+  Document document;
   FreqMap freqmap;
-  freqmap.total_terms = 0;
+
+  document.second = 0;
 
   for (std::string &token : tokens) {
-    ++freqmap.freqs[token];
-    ++freqmap.total_terms;
+    ++freqmap[token];
+    ++document.second;
   }
 
-  return Document {
-    .freqmap = std::move(freqmap),
-  };
+  document.first = std::move(freqmap);
+  return document;
 }
 
 Corpus assemble_corpus(std::vector<std::string> &filepaths)
 {
   Corpus corpus;
+
   for (std::string &filepath : filepaths) {
-    corpus.documents[filepath] = produce_document(filepath);
+    corpus[filepath] = produce_document(filepath);
   }
+
   return corpus;
 }
 
 void dump_corpus(Corpus &corpus)
 {
-  for (auto &doc : corpus.documents) {
-    std::cout << "Document: " << doc.first << std::endl;
-    FreqMap &fm = doc.second.freqmap;
-    std::cout << "Total terms: " << fm.total_terms << std::endl;
-    for (auto &freq : fm.freqs) {
-      std::cout << "  " << freq.first << " " << freq.second << std::endl;
-    }
-  }
-}
-
-size_t docs_term_is_in(std::string &term, Corpus &corpus)
-{
-  size_t d = 0;
-  for (auto &doc : corpus.documents) {
-    if (doc.second.freqmap.freqs[term]) {
-      ++d;
-    }
-  }
-  return d;
+  (void)corpus;
+  assert(false && "unimplemented");
 }
 
 double tf(std::string &term, Document &document)
 {
-  size_t F_td = document.freqmap.freqs[term];
-  return static_cast<double>(F_td)/document.freqmap.total_terms;
+  size_t f_td = document.first[term];
+  return static_cast<double>(f_td)/document.second;
 }
 
 double idf(std::string &term, Corpus &corpus)
 {
-  double N = static_cast<double>(corpus.documents.size());
-  return std::log((N+1)/(docs_term_is_in(term, corpus)+1));
+  size_t n = corpus.size();
+  size_t dtd = 0;
+  for (auto &doc : corpus) {
+    if (doc.second.first[term] != 0) {
+      ++dtd;
+    }
+  }
+  return std::log(static_cast<double>((n+1)) / (dtd+1));
 }
 
 double tfidf(std::string &term, Document &document, Corpus &corpus)

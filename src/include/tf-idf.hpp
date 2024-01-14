@@ -5,18 +5,9 @@
 #include <string>
 #include <vector>
 
-struct FreqMap {
-  std::unordered_map<std::string, size_t> freqs;
-  size_t total_terms;
-};
-
-struct Document {
-  FreqMap freqmap;
-};
-
-struct Corpus {
-  std::unordered_map<std::string, Document> documents;
-};
+typedef std::unordered_map<std::string, size_t> FreqMap;
+typedef std::pair<FreqMap, size_t> Document;
+typedef std::unordered_map<std::string, Document> Corpus;
 
 Corpus assemble_corpus(std::vector<std::string> &filepaths);
 void dump_corpus(Corpus &corpus);
