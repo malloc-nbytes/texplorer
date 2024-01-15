@@ -33,7 +33,7 @@ void usage(const char *progname)
   std::cerr << "  -i <path>, --index <path>......Index <path>" << std::endl;
   std::cerr << "  -s <path>, --save <path>.......Save indexed files to <path>" << std::endl;
   std::cerr << "  -db <path>, --database <path>..Used indexed files from <path>" << std::endl;
-  std::cerr << "  -lim <N>, --limit <N>..........Limit to <N> files shown (def. 10)" << std::endl;
+  std::cerr << "  -l <N>, --limit <N>..........Limit to <N> files shown (def. 10)" << std::endl;
   exit(1);
 }
 
@@ -55,6 +55,7 @@ void tfidf(std::string &index_path,
   corpus_t corpus;
 
   if (db && (FLAGS & TF_IDF_FLAG_LOAD)) {
+    assert(false && "loading from a db is currently broken");
     corpus = corpus_from_db(db);
   }
   else {
@@ -95,10 +96,11 @@ int main(int argc, char **argv)
     usage(ap_prog_name());
   }
 
-  std::string query = "";
-  std::string index_path = "";
-  std::string db_save_path = "";
-  std::string db_from_path = "";
+  std::string
+    query = "",
+    index_path = "",
+    db_save_path = "",
+    db_from_path = "";
 
   char *inp;
   while ((inp = ap_eat(&argc, &argv)) != NULL) {
@@ -127,7 +129,7 @@ int main(int argc, char **argv)
       FLAGS |= TF_IDF_FLAG_LOAD;
       db_from_path = std::string(ap_eat(&argc, &argv));
     }
-    else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "lim")
+    else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "l")
              || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "limit")) {
       ranked_lim = std::stol(ap_eat(&argc, &argv));
     }
