@@ -10,9 +10,6 @@
 #include "./include/tf-idf.hpp"
 #include "./include/utils.hpp"
 
-// const char* createTermsTable = "CREATE TABLE IF NOT EXISTS terms (term_id INTEGER PRIMARY KEY, term_text TEXT UNIQUE, term_frequency INTEGER, document_path TEXT NOT NULL, FOREIGN KEY (document_path) REFERENCES documents (document_path));";
-// const char* createDocumentsTable = "CREATE TABLE IF NOT EXISTS documents (document_id INTEGER PRIMARY KEY, document_path TEXT NOT NULL UNIQUE);";
-
 std::vector<std::string> produce_tokens(std::string &text)
 {
   std::vector<std::string> tokens;

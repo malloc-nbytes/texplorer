@@ -110,29 +110,35 @@ int main(int argc, char **argv)
         || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "verbose")) {
       FLAGS |= TF_IDF_FLAG_VERBOSE;
     }
+
     else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "h")
              || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "help")) {
       usage(ap_prog_name());
     }
+
     else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "i")
              || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "index")) {
       inp = ap_eat(&argc, &argv);
       index_path = std::string(inp);
     }
+
     else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "s")
              || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "save")) {
       FLAGS |= TF_IDF_FLAG_SAVE;
       db_save_path = std::string(ap_eat(&argc, &argv));
     }
+
     else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "db")
              || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "database")) {
       FLAGS |= TF_IDF_FLAG_LOAD;
       db_from_path = std::string(ap_eat(&argc, &argv));
     }
+
     else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "l")
              || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "limit")) {
       ranked_lim = std::stol(ap_eat(&argc, &argv));
     }
+
     else if (AP_CHECK_0HYPH_OK(arg)) {
       query.append(std::string(arg.value) + " ");
     }
