@@ -97,25 +97,29 @@ std::vector<std::pair<std::string, double>> produce_ranked_documents(std::string
   std::vector<std::pair<std::string, double>> ranked_documents;
 
   for (auto &pair : corpus) {
-    std::cout << "\nRanking: " << pair.first << "..." << std::endl;
+    if (FLAGS & TF_IDF_FLAG_VERBOSE) {
+      std::cout << "Ranking: " << pair.first << "..." << std::endl;
+    }
     double rank = 0.0;
 
     for (std::string &term : produce_tokens(query)) {
       double x = tf(term, pair.second)*idf(term, corpus);
       rank += x;
-      std::cout << "  " << x << " ";
+      if (FLAGS & TF_IDF_FLAG_VERBOSE) {
+        std::cout << "  " << x << " ";
+      }
     }
+    std::cout << std::endl;
 
     ranked_documents.push_back(std::make_pair(pair.first, rank));
   }
-
-  // std::cout << std::endl;
 
   return ranked_documents;
 }
 
 void corpus_to_db(corpus_t &corpus, sqlite3 *db)
 {
+  std::printf("Saving corpus to db...\n");
   std::string insert_document = "INSERT INTO documents (document_path) VALUES (?);";
   std::string insert_term = "INSERT INTO terms (term_text, term_frequency, document_path) VALUES (?, ?, ?);";
   sqlite3_stmt *stmt;
@@ -132,8 +136,6 @@ void corpus_to_db(corpus_t &corpus, sqlite3 *db)
 
   sqlite3_prepare_v2(db, insert_term.c_str(), -1, &stmt, nullptr);
   for (auto &pair : corpus) {
-    std::cout << "Saving: " << pair.first << "..." << std::endl;
-
     for (auto &term : pair.second.first) {
       sqlite3_bind_text(stmt, 1, term.first.c_str(), -1, SQLITE_STATIC);
       sqlite3_bind_int(stmt, 2, term.second);
@@ -149,6 +151,7 @@ void corpus_to_db(corpus_t &corpus, sqlite3 *db)
 
 corpus_t corpus_from_db(sqlite3 *db)
 {
+  std::printf("Loading corpus from db...\n");
   corpus_t corpus;
   std::string select_documents = "SELECT document_path FROM documents;";
   std::string select_terms = "SELECT term_text, term_frequency FROM terms WHERE document_path = ?;";
@@ -169,6 +172,8 @@ corpus_t corpus_from_db(sqlite3 *db)
       int term_frequency = sqlite3_column_int(stmt, 1);
       pair.second.first[term_text] = term_frequency;
       pair.second.second += term_frequency;
+
+      std::cout << "  " << term_text << " " << term_frequency << std::endl;
     }
     sqlite3_reset(stmt);
   }

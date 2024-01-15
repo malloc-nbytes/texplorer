@@ -37,7 +37,7 @@ void usage(const char *progname)
   exit(1);
 }
 
-void tfidf(std::vector<std::string> &paths,
+void tfidf(std::string &index_path,
            std::string &query,
            std::string &db_save_path,
            std::string &db_from_path)
@@ -52,26 +52,35 @@ void tfidf(std::vector<std::string> &paths,
     db = init_db(db_from_path);
   }
 
-  for (std::string &filepath : paths) {
-    std::vector<std::string> filepaths = walkdir(filepath);
-    corpus_t corpus = index_documents(filepaths);
+  corpus_t corpus;
 
-    if (db && (FLAGS & TF_IDF_FLAG_SAVE)) {
-      corpus_to_db(corpus, db);
+  if (db && (FLAGS & TF_IDF_FLAG_LOAD)) {
+    corpus = corpus_from_db(db);
+  }
+  else {
+    if (index_path == "") {
+      std::cerr << "Error: -i=<path>... must be specified if not loading from a db." << std::endl;
+      exit(1);
     }
+    std::vector<std::string> filepaths = walkdir(index_path);
+    corpus = index_documents(filepaths);
+  }
 
-    std::cout << "Ranking documents..." << std::endl;
-    std::vector<std::pair<std::string, double>> ranked_documents = produce_ranked_documents(query, corpus);
+  if (db && (FLAGS & TF_IDF_FLAG_SAVE)) {
+    corpus_to_db(corpus, db);
+  }
 
-    std::cout << "Sorting documents" << std::endl;
-    std::sort(ranked_documents.begin(), ranked_documents.end(), [](const auto &lhs, const auto &rhs) {
-      return lhs.second > rhs.second;
-    });
+  std::cout << "Ranking documents..." << std::endl;
+  std::vector<std::pair<std::string, double>> ranked_documents = produce_ranked_documents(query, corpus);
 
-    std::cout << "Results" << std::endl;
-    for (size_t i = 0; (i < ranked_lim) && (i < ranked_documents.size()); ++i) {
-      std::cout << i << ": " << ranked_documents[i].first << " ::: " << ranked_documents[i].second << std::endl;
-    }
+  std::cout << "Sorting documents" << std::endl;
+  std::sort(ranked_documents.begin(), ranked_documents.end(), [](const auto &lhs, const auto &rhs) {
+    return lhs.second > rhs.second;
+  });
+
+  std::cout << "Results" << std::endl;
+  for (size_t i = 0; (i < ranked_lim) && (i < ranked_documents.size()); ++i) {
+    std::cout << i << ": " << ranked_documents[i].first << " ::: " << ranked_documents[i].second << std::endl;
   }
 
   if (db) {
@@ -87,7 +96,7 @@ int main(int argc, char **argv)
   }
 
   std::string query = "";
-  std::vector<std::string> paths;
+  std::string index_path = "";
   std::string db_save_path = "";
   std::string db_from_path = "";
 
@@ -106,7 +115,7 @@ int main(int argc, char **argv)
     else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "i")
              || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "index")) {
       inp = ap_eat(&argc, &argv);
-      paths.push_back(std::string(inp));
+      index_path = std::string(inp);
     }
     else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "s")
              || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "save")) {
@@ -127,7 +136,7 @@ int main(int argc, char **argv)
     }
   }
 
-  tfidf(paths, query, db_save_path, db_from_path);
+  tfidf(index_path, query, db_save_path, db_from_path);
 
   return 0;
 }

@@ -23,23 +23,23 @@ std::string file_to_str(const std::string &filepath)
 
 std::vector<std::string> walkdir(const std::string& path)
 {
-  std::vector<std::string> filePaths;
+  std::vector<std::string> file_paths;
 
   if (std::filesystem::is_regular_file(path)) {
-    filePaths.push_back(path);
-    return filePaths;
+    file_paths.push_back(path);
+    return file_paths;
   }
 
   for (const auto &entry : std::filesystem::directory_iterator(path)) {
     if (std::filesystem::is_regular_file(entry.path()) && entry.path().filename().string()[0] != '.') {
-      filePaths.push_back(entry.path());
+      file_paths.push_back(entry.path());
     } else if (std::filesystem::is_directory(entry.path()) && entry.path().filename().string()[0] != '.') {
-      std::vector<std::string> subDir = walkdir(entry.path());
-      filePaths.insert(filePaths.end(), subDir.begin(), subDir.end());
+      std::vector<std::string> sub_dir = walkdir(entry.path());
+      file_paths.insert(file_paths.end(), sub_dir.begin(), sub_dir.end());
     }
   }
 
-  return filePaths;
+  return file_paths;
 }
 
 sqlite3* init_db(std::string &db_save_path) {
@@ -73,3 +73,4 @@ sqlite3* init_db(std::string &db_save_path) {
 
   return db;
 }
+
