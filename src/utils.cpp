@@ -42,11 +42,11 @@ std::vector<std::string> walkdir(const std::string& path)
   return filePaths;
 }
 
-sqlite3* init_db(void) {
+sqlite3* init_db(std::string &db_save_path) {
   sqlite3* db;
   int rc;
 
-  rc = sqlite3_open("tfidf-indexed-files.db", &db);
+  rc = sqlite3_open(db_save_path.c_str(), &db);
 
   if (rc) {
     std::cerr << "Cannot open database: " << sqlite3_errmsg(db) << std::endl;

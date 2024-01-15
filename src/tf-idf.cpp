@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstdio>
 #include <cmath>
 #include <iostream>
 #include <string>
@@ -96,14 +97,19 @@ std::vector<std::pair<std::string, double>> produce_ranked_documents(std::string
   std::vector<std::pair<std::string, double>> ranked_documents;
 
   for (auto &pair : corpus) {
+    std::cout << "\nRanking: " << pair.first << "..." << std::endl;
     double rank = 0.0;
 
     for (std::string &term : produce_tokens(query)) {
-      rank += tf(term, pair.second)*idf(term, corpus);
+      double x = tf(term, pair.second)*idf(term, corpus);
+      rank += x;
+      std::cout << "  " << x << " ";
     }
 
     ranked_documents.push_back(std::make_pair(pair.first, rank));
   }
+
+  // std::cout << std::endl;
 
   return ranked_documents;
 }
