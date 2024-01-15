@@ -4,6 +4,7 @@
 // Requirements
 //   libsqlite3-dev
 
+#include <iterator>
 #define AP_IMPL
 #include "./include/ap.h"
 
@@ -24,16 +25,16 @@ uint32_t FLAGS = 0;
 
 void usage(const char *progname)
 {
-  std::cerr << "Usage: " << progname << " [OPTIONS...] -i=<path>... <query>" << std::endl;
+  std::cerr << "Usage: " << progname << " [OPTIONS...] -i=<path>... <query1> <query2> ..." << std::endl;
   std::cerr << "Options:" << std::endl;
   std::cerr << "  -h, --help.................Show this help message" << std::endl;
   std::cerr << "  -v, --verbose..............Enable verbose output" << std::endl;
   std::cerr << "  -i=<path>, --index=<path>..Index <path>" << std::endl;
-  std::cerr << "  -s, --save.................Save indexed <path>" << std::endl;
+  std::cerr << "  -s, --save.................Save indexed <path(s)>" << std::endl;
   exit(1);
 }
 
-void begin(std::vector<std::string> paths, std::string &query)
+void tfidf(std::vector<std::string> &paths, std::string &query)
 {
   sqlite3 *db = nullptr;
 
@@ -69,7 +70,39 @@ void begin(std::vector<std::string> paths, std::string &query)
 int main(int argc, char **argv)
 {
   (void)ap_eat(&argc, &argv);
-  usage(ap_prog_name());
+  if (argc < 2) {
+    usage(ap_prog_name());
+  }
+
+  std::string query = "";
+  std::vector<std::string> paths;
+
+  char *inp;
+  while ((inp = ap_eat(&argc, &argv)) != NULL) {
+    struct Arg arg = ap_parse(inp, '-');
+
+    if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "v")
+        || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "verbose")) {
+      FLAGS |= TF_IDF_FLAG_VERBOSE;
+    }
+    else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "h")
+             || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "help")) {
+      usage(ap_prog_name());
+    }
+    else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "i")
+             || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "index")) {
+      assert(false && "unimplemented");
+    }
+    else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "s")
+             || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "save")) {
+      assert(false && "unimplemented");
+    }
+    else if (AP_CHECK_0HYPH_OK(arg)) {
+      query.append(std::string(arg.value) + " ");
+    }
+  }
+
+  tfidf(paths, query);
 
   return 0;
 }
