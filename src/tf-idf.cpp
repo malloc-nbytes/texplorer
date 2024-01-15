@@ -4,6 +4,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <sqlite3.h>
+
 #include "./include/utils.hpp"
 #include "./include/tf-idf.hpp"
 
@@ -33,14 +35,14 @@ std::vector<std::string> produce_tokens(std::string &text)
   return tokens;
 }
 
-Document produce_document(std::string &filepath)
+document_t produce_document(std::string &filepath)
 {
   std::cout << "Indexing: " << filepath << "..." << std::endl;
 
   std::string text = file_to_str(filepath);
   std::vector<std::string> tokens = produce_tokens(text);
-  Document document;
-  FreqMap freqmap;
+  document_t document;
+  freqmap_t freqmap;
 
   document.second = 0;
 
@@ -53,9 +55,9 @@ Document produce_document(std::string &filepath)
   return document;
 }
 
-Corpus assemble_corpus(std::vector<std::string> &filepaths)
+corpus_t index_documents(std::vector<std::string> &filepaths)
 {
-  Corpus corpus;
+  corpus_t corpus;
 
   for (std::string &filepath : filepaths) {
     corpus[filepath] = produce_document(filepath);
@@ -64,12 +66,12 @@ Corpus assemble_corpus(std::vector<std::string> &filepaths)
   return corpus;
 }
 
-double tf(std::string &term, Document &document)
+double tf(std::string &term, document_t &document)
 {
   return static_cast<double>(document.first[term])/static_cast<double>(document.second);
 }
 
-double idf(std::string &term, Corpus &corpus)
+double idf(std::string &term, corpus_t &corpus)
 {
   double N = static_cast<double>(corpus.size())+1.0;
   double n_t = 0.0+1.0;
@@ -83,7 +85,7 @@ double idf(std::string &term, Corpus &corpus)
   return std::log10(N/n_t);
 }
 
-std::vector<std::pair<std::string, double>> produce_ranked_documents(std::string &query, Corpus &corpus)
+std::vector<std::pair<std::string, double>> produce_ranked_documents(std::string &query, corpus_t &corpus)
 {
   std::vector<std::pair<std::string, double>> ranked_documents;
 

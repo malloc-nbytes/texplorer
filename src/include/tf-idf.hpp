@@ -5,13 +5,13 @@
 #include <string>
 #include <vector>
 
-typedef std::unordered_map<std::string, size_t> FreqMap;
-typedef std::pair<FreqMap, size_t> Document;
-typedef std::unordered_map<std::string, Document> Corpus;
+typedef std::unordered_map<std::string, size_t> freqmap_t;
+typedef std::pair<freqmap_t, size_t> document_t;
+typedef std::unordered_map<std::string, document_t> corpus_t;
 
-Corpus assemble_corpus(std::vector<std::string> &filepaths);
-std::vector<std::pair<std::string, double>> produce_ranked_documents(std::string &query, Corpus &corpus);
-double tf(std::string &term, Document &document);
-double idf(std::string &term, Corpus &corpus);
+corpus_t index_documents(std::vector<std::string> &filepaths);
+std::vector<std::pair<std::string, double>> produce_ranked_documents(std::string &query, corpus_t &corpus);
+double tf(std::string &term, document_t &document);
+double idf(std::string &term, corpus_t &corpus);
 
 #endif // TF_IDF_H
