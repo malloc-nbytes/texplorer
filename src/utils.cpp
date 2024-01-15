@@ -46,7 +46,7 @@ sqlite3* init_db(void) {
   sqlite3* db;
   int rc;
 
-  rc = sqlite3_open("test.db", &db);
+  rc = sqlite3_open("tfidf-indexed-files.db", &db);
 
   if (rc) {
     std::cerr << "Cannot open database: " << sqlite3_errmsg(db) << std::endl;

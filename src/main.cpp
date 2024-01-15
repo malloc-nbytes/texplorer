@@ -27,10 +27,11 @@ void usage(const char *progname)
 {
   std::cerr << "Usage: " << progname << " [OPTIONS...] -i=<path>... <query1> <query2> ..." << std::endl;
   std::cerr << "Options:" << std::endl;
-  std::cerr << "  -h, --help.................Show this help message" << std::endl;
-  std::cerr << "  -v, --verbose..............Enable verbose output" << std::endl;
-  std::cerr << "  -i=<path>, --index=<path>..Index <path>" << std::endl;
-  std::cerr << "  -s, --save.................Save indexed <path(s)>" << std::endl;
+  std::cerr << "  -h, --help.....................Show this help message" << std::endl;
+  std::cerr << "  -v, --verbose..................Enable verbose output" << std::endl;
+  std::cerr << "  -i=<path>, --index=<path>......Index <path>" << std::endl;
+  std::cerr << "  -s, --save.....................Save indexed <path(s)>" << std::endl;
+  std::cerr << "  -db=<path>, --database=<path>..Used indexed files from <path>" << std::endl;
   exit(1);
 }
 
@@ -91,11 +92,15 @@ int main(int argc, char **argv)
     }
     else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "i")
              || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "index")) {
-      assert(false && "unimplemented");
+      assert(false && "indexing is unimplemented");
     }
     else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "s")
              || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "save")) {
-      assert(false && "unimplemented");
+      assert(false && "saving indexes is unimplemented");
+    }
+    else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "db")
+             || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "database")) {
+      assert(false && "loading from database is unimplemented");
     }
     else if (AP_CHECK_0HYPH_OK(arg)) {
       query.append(std::string(arg.value) + " ");
