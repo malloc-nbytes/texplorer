@@ -22,6 +22,7 @@
 #include "./include/tf-idf.hpp"
 
 uint32_t FLAGS = 0;
+size_t ranked_lim = 10;
 
 void usage(const char *progname)
 {
@@ -29,9 +30,10 @@ void usage(const char *progname)
   std::cerr << "Options:" << std::endl;
   std::cerr << "  -h, --help.....................Show this help message" << std::endl;
   std::cerr << "  -v, --verbose..................Enable verbose output" << std::endl;
-  std::cerr << "  -i=<path>, --index=<path>......Index <path>" << std::endl;
+  std::cerr << "  -i <path>, --index <path>......Index <path>" << std::endl;
   std::cerr << "  -s, --save.....................Save indexed <path(s)>" << std::endl;
-  std::cerr << "  -db=<path>, --database=<path>..Used indexed files from <path>" << std::endl;
+  std::cerr << "  -db <path>, --database <path>..Used indexed files from <path>" << std::endl;
+  std::cerr << "  -lim <N>, --limit <N>..........Limit to <N> files shown (def. 10)" << std::endl;
   exit(1);
 }
 
@@ -52,14 +54,17 @@ void tfidf(std::vector<std::string> &paths, std::string &query)
       corpus_to_db(corpus, db);
     }
 
+    std::cout << "Ranking documents..." << std::endl;
     std::vector<std::pair<std::string, double>> ranked_documents = produce_ranked_documents(query, corpus);
 
+    std::cout << "Sorting documents" << std::endl;
     std::sort(ranked_documents.begin(), ranked_documents.end(), [](const auto &lhs, const auto &rhs) {
       return lhs.second > rhs.second;
     });
 
-    for (size_t i = 0; (i < 10) & (i < ranked_documents.size()); ++i) {
-      std::cout << 10-i << ": " << ranked_documents[i].first << " ::: " << ranked_documents[i].second << std::endl;
+    std::cout << "Results" << std::endl;
+    for (size_t i = 0; (i < ranked_lim) && (i < ranked_documents.size()); ++i) {
+      std::cout << i << ": " << ranked_documents[i].first << " ::: " << ranked_documents[i].second << std::endl;
     }
   }
 
@@ -92,15 +97,20 @@ int main(int argc, char **argv)
     }
     else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "i")
              || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "index")) {
-      assert(false && "indexing is unimplemented");
+      inp = ap_eat(&argc, &argv);
+      paths.push_back(std::string(inp));
     }
     else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "s")
              || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "save")) {
-      assert(false && "saving indexes is unimplemented");
+      FLAGS |= TF_IDF_FLAG_INDEX;
     }
     else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "db")
              || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "database")) {
       assert(false && "loading from database is unimplemented");
+    }
+    else if ((AP_CHECK_1HYPH_OK(arg) && std::string(arg.value) == "lim")
+             || (AP_CHECK_2HYPH_OK(arg) && std::string(arg.value) == "limit")) {
+      ranked_lim = std::stol(ap_eat(&argc, &argv));
     }
     else if (AP_CHECK_0HYPH_OK(arg)) {
       query.append(std::string(arg.value) + " ");
