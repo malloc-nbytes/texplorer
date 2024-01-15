@@ -54,7 +54,6 @@ void tfidf(std::vector<std::string> &paths,
 
   for (std::string &filepath : paths) {
     std::vector<std::string> filepaths = walkdir(filepath);
-
     corpus_t corpus = index_documents(filepaths);
 
     if (db && (FLAGS & TF_IDF_FLAG_SAVE)) {

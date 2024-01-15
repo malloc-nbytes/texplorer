@@ -146,3 +146,33 @@ void corpus_to_db(corpus_t &corpus, sqlite3 *db)
 
   sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
 }
+
+corpus_t corpus_from_db(sqlite3 *db)
+{
+  corpus_t corpus;
+  std::string select_documents = "SELECT document_path FROM documents;";
+  std::string select_terms = "SELECT term_text, term_frequency FROM terms WHERE document_path = ?;";
+  sqlite3_stmt *stmt;
+
+  sqlite3_prepare_v2(db, select_documents.c_str(), -1, &stmt, nullptr);
+  while (sqlite3_step(stmt) == SQLITE_ROW) {
+    std::string document_path = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+    corpus[document_path] = document_t();
+  }
+  sqlite3_finalize(stmt);
+
+  sqlite3_prepare_v2(db, select_terms.c_str(), -1, &stmt, nullptr);
+  for (auto &pair : corpus) {
+    sqlite3_bind_text(stmt, 1, pair.first.c_str(), -1, SQLITE_STATIC);
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+      std::string term_text = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+      int term_frequency = sqlite3_column_int(stmt, 1);
+      pair.second.first[term_text] = term_frequency;
+      pair.second.second += term_frequency;
+    }
+    sqlite3_reset(stmt);
+  }
+  sqlite3_finalize(stmt);
+
+  return corpus;
+}
