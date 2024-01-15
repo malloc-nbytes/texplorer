@@ -6,8 +6,11 @@
 #include <vector>
 #include <sqlite3.h>
 
-#include "./include/utils.hpp"
 #include "./include/tf-idf.hpp"
+#include "./include/utils.hpp"
+
+// const char* createTermsTable = "CREATE TABLE IF NOT EXISTS terms (term_id INTEGER PRIMARY KEY, term_text TEXT UNIQUE, term_frequency INTEGER, document_path TEXT NOT NULL, FOREIGN KEY (document_path) REFERENCES documents (document_path));";
+// const char* createDocumentsTable = "CREATE TABLE IF NOT EXISTS documents (document_id INTEGER PRIMARY KEY, document_path TEXT NOT NULL UNIQUE);";
 
 std::vector<std::string> produce_tokens(std::string &text)
 {
@@ -37,7 +40,9 @@ std::vector<std::string> produce_tokens(std::string &text)
 
 document_t produce_document(std::string &filepath)
 {
-  std::cout << "Indexing: " << filepath << "..." << std::endl;
+  if (FLAGS & TF_IDF_FLAG_VERBOSE) {
+    std::cout << "Indexing: " << filepath << "..." << std::endl;
+  }
 
   std::string text = file_to_str(filepath);
   std::vector<std::string> tokens = produce_tokens(text);
@@ -52,6 +57,7 @@ document_t produce_document(std::string &filepath)
   }
 
   document.first = std::move(freqmap);
+
   return document;
 }
 
@@ -100,4 +106,37 @@ std::vector<std::pair<std::string, double>> produce_ranked_documents(std::string
   }
 
   return ranked_documents;
+}
+
+void corpus_to_db(corpus_t &corpus, sqlite3 *db)
+{
+  std::string insert_document = "INSERT INTO documents (document_path) VALUES (?);";
+  std::string insert_term = "INSERT INTO terms (term_text, term_frequency, document_path) VALUES (?, ?, ?);";
+  sqlite3_stmt *stmt;
+
+  sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+
+  sqlite3_prepare_v2(db, insert_document.c_str(), -1, &stmt, nullptr);
+  for (auto &pair : corpus) {
+    sqlite3_bind_text(stmt, 1, pair.first.c_str(), -1, SQLITE_STATIC);
+    sqlite3_step(stmt);
+    sqlite3_reset(stmt);
+  }
+  sqlite3_finalize(stmt);
+
+  sqlite3_prepare_v2(db, insert_term.c_str(), -1, &stmt, nullptr);
+  for (auto &pair : corpus) {
+    std::cout << "Saving: " << pair.first << "..." << std::endl;
+
+    for (auto &term : pair.second.first) {
+      sqlite3_bind_text(stmt, 1, term.first.c_str(), -1, SQLITE_STATIC);
+      sqlite3_bind_int(stmt, 2, term.second);
+      sqlite3_bind_text(stmt, 3, pair.first.c_str(), -1, SQLITE_STATIC);
+      sqlite3_step(stmt);
+      sqlite3_reset(stmt);
+    }
+  }
+  sqlite3_finalize(stmt);
+
+  sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
 }
