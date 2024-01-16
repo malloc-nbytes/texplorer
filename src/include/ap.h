@@ -15,7 +15,6 @@
 #define AP_CHECK_0HYPH_OK(arg) (((arg.status) & AP_0HYPH_OK) != 0)
 #define AP_CHECK_1HYPH_OK(arg) (((arg.status) & AP_1HYPH_OK) != 0)
 #define AP_CHECK_2HYPH_OK(arg) (((arg.status) & AP_2HYPH_OK) != 0)
-#define AP_CHECK_1_OR_2_HYPH_OK(arg) (((arg.status & AP_AP_1HYPH_OK) != 0) || (arg.status & AP_AP_2HYPH_OK) != 0)
 #define AP_CHECK_NOT_OK(arg) ((((arg.status) & AP_EMPTY) != 0) || (((arg.status) & AP_INVALID) != 0))
 #define AP_CHECK_NO_ARG(arg) ((((arg.status) & AP_1HYPH_NO_ARG) != 0) || (((arg.status) & AP_2HYPH_NO_ARG) != 0))
 

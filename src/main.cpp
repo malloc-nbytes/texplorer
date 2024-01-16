@@ -33,7 +33,7 @@ void usage(const char *progname)
   std::cerr << "  -i <path>, --index <path>......Index <path>" << std::endl;
   std::cerr << "  -s <path>, --save <path>.......Save indexed files to <path>" << std::endl;
   std::cerr << "  -db <path>, --database <path>..Used indexed files from <path>" << std::endl;
-  std::cerr << "  -l <N>, --limit <N>..........Limit to <N> files shown (def. 10)" << std::endl;
+  std::cerr << "  -l <N>, --limit <N>............Limit to <N> files shown (def. 10)" << std::endl;
   exit(1);
 }
 

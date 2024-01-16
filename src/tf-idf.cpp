@@ -103,7 +103,7 @@ std::vector<std::pair<std::string, double>> produce_ranked_documents(std::string
       double x = tf(term, pair.second)*idf(term, corpus);
       rank += x;
       if (FLAGS & TF_IDF_FLAG_VERBOSE) {
-        std::cout << "  " << x << " ";
+        std::cout << "  " << term << ": " << x << std::endl;
       }
     }
     std::cout << std::endl;
