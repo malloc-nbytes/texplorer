@@ -115,7 +115,10 @@ std::vector<std::pair<std::string, double>> produce_ranked_documents(std::string
         std::cout << "  " << term << ": " << x << std::endl;
       }
     }
-    std::cout << std::endl;
+
+    if (FLAGS & TF_IDF_FLAG_VERBOSE) {
+      std::cout << std::endl;
+    }
 
     ranked_documents.push_back(std::make_pair(pair.first, rank));
   }
