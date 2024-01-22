@@ -55,7 +55,7 @@ void tfidf(std::string &index_path,
   corpus_t corpus;
 
   if (db && (FLAGS & TF_IDF_FLAG_LOAD)) {
-    assert(false && "loading from a db is currently broken");
+    // assert(false && "loading from a db is currently broken");
     corpus = corpus_from_db(db);
   }
   else {

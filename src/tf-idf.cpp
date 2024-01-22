@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <cmath>
 #include <iostream>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -36,7 +37,7 @@ std::vector<std::string> produce_tokens(std::string &text)
   return tokens;
 }
 
-document_t produce_document(std::string &filepath)
+std::optional<document_t> produce_document(std::string &filepath)
 {
   if (FLAGS & TF_IDF_FLAG_VERBOSE) {
     std::cout << "Indexing: " << filepath << "..." << std::endl;
@@ -44,6 +45,11 @@ document_t produce_document(std::string &filepath)
 
   std::string text = file_to_str(filepath);
   std::vector<std::string> tokens = produce_tokens(text);
+
+  if (tokens.size() == 0) {
+    return std::nullopt;
+  }
+
   document_t document;
   freqmap_t freqmap;
 
@@ -64,7 +70,10 @@ corpus_t index_documents(std::vector<std::string> &filepaths)
   corpus_t corpus;
 
   for (std::string &filepath : filepaths) {
-    corpus[filepath] = produce_document(filepath);
+    std::optional<document_t> document = produce_document(filepath);
+    if (document) {
+      corpus[filepath] = *document;
+    }
   }
 
   return corpus;
